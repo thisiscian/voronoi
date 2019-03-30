@@ -7,9 +7,9 @@
             T& value = NULL;
             T get();
 
-            operator=(T new_value);
+            void operator=(T new_value);
             void clear();
-    }
+    };
 
     class Edge {
         public:
@@ -17,9 +17,7 @@
             Edge(Point new_start, Point direction);
             Point start;
             Point stop;
-            Point direction
-    }
-
-std::
+            Point direction;
+    };
 
 #endif
