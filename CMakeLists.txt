@@ -16,4 +16,5 @@ target_include_directories(voronoi PRIVATE include)
 add_library(pyvoronoi SHARED ${SOURCES} src/python.cpp)
 set_target_properties(pyvoronoi PROPERTIES PREFIX "")
 TARGET_LINK_LIBRARIES(pyvoronoi ${Boost_LIBRARIES} -lpython3.7m -fPIC -shared)
+configure_file(src/run_voronoi.py ${CMAKE_BINARY_DIR} COPYONLY)
 

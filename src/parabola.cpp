@@ -10,8 +10,18 @@ Point::Point(double X, double Y) {
     y = Y;
 }
 
+const std::string Point::as_string() const {
+    std::stringstream ss;
+    ss << "Point(" << x << ", " << y << ")";
+    return ss.str();
+}
+
+bool Point::operator==(const Point& p) const {
+    return x == p.x && y == p.y;
+}
+
 std::ostream& operator<<(std::ostream& os, const Point& p) {
-    os << "Point(" << p.x << ", " << p.y << ")";
+    os << p.as_string();
     return os;
 }
 

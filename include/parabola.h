@@ -12,6 +12,8 @@
             Point();
             Point(double X, double Y);
             double x, y;
+            const std::string as_string() const;
+            bool operator==(const Point& p) const;
             friend std::ostream& operator<<(std::ostream&, const Point& p);
     };
 
@@ -50,11 +52,10 @@
     class Parabola {
         public:
             Parabola(Point focus);
+            Point focus;
             Parabola(double x, double y);
             Quadratic to_quadratic(double directrix) const;
             std::vector<Point> get_intersections(const Parabola& p, double directrix) const;
-        private:
-            Point focus;
     };
 
 #endif
