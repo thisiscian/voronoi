@@ -1,6 +1,18 @@
 #!/usr/bin/python
 
+import math
+import matplotlib
 import pyvoronoi as v
+
+def parameterised_heart(t):
+	T = t * 2 * math.PI;
+	x = 16 * pow( math.sin(T), 3 )
+	y = 13 * math.cos( T ) - 5 * math.cos( 2 * T ) - 2 * math.cos( 3 * T ) - math.cos( 4 * T )
+	return v.Point(x / 16.0, y / 16.0)
+
+xdata = list(range(0, 1, 0.01))
+matplotlib.pyploy.plot(xdata, [ parameterised_heart(x) for x in xdata])
+
 
 point1 = v.Point(1, 0)
 point2 = v.Point(2, 0)

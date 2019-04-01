@@ -1,0 +1,14 @@
+# Setup Docker
+
+    docker build --tag=voronoi .
+
+## for production
+
+    docker run -p 4000:80 voronoi
+
+## for dev
+
+    docker create -it --name voronoi-dev voronoi
+    docker start voronoi-dev
+    docker exec -it voronoi-dev bash
+
