@@ -5,6 +5,8 @@ import math
 import matplotlib
 matplotlib.use('GTK3Agg')
 import matplotlib.pyplot as plt
+import numpy as np
+import random
 import pyvoronoi as v
 
 def parameterised_heart(t):
@@ -17,26 +19,32 @@ data = [parameterised_heart(t/100.0) for t in range(0, 100)]
 xdata = [d[0] for d in data]
 ydata = [d[1] for d in data]
 
-plt.ylabel("y")
-plt.xlabel("x")
-plt.title("a heart")
-plt.plot(xdata, ydata)
+def point_dist(a, b):
+    x, y = a
+    X, Y = b
+    return math.sqrt(pow(x - X, 2) + pow(y - Y, 2))
+
+random_points = []
+for x in range(1000):
+    x, y = parameterised_heart(random.uniform(0, 1))
+    r = random.uniform(0, 1)
+    p = [r * x, r * y]
+    does_pass = True
+    for point in random_points:
+        dist = point_dist(p, point)
+        if dist < 0.1:
+            does_pass = False
+            continue
+    if does_pass:
+        random_points.append(p)
+    
+points = [v.Point(*d) for d in random_points]
+solved = v.solve(points)
+print(solved)
+
+pxdata = [d[0] for d in random_points]
+pydata = [d[1] for d in random_points]
+
+plt.plot(pxdata, pydata, 'rh', xdata, ydata, 'k', markersize=2)
+plt.axis('off')
 plt.show()
-
-parabola1 = v.Parabola(v.Point(0,1))
-parabola2 = v.Parabola(v.Point(0,2))
-print("focus", parabola1.focus)
-print()
-
-q1 = parabola1.to_quadratic(0)
-q2 = parabola2.to_quadratic(0)
-
-print(q1, q1.a, q1.b, q1.c)
-print(q2, q2.a, q2.b, q2.c)
-
-print("intersections:")
-for i in parabola1.get_intersections(parabola2, 0):
-    print("    ", i)
-
-#print("solve():")
-#print(v.solve([point1, point2]))

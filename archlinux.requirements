@@ -2,9 +2,6 @@ boost
 cmake
 gcc
 git
-gtk3
 make
-pkg-config
-python-gobject
-python-cairocffi
 python-pip
+vim

@@ -66,8 +66,6 @@ void py_voronoi(const list& points_list) {
         if(x.check()) {
             Point point = x;
             std::cout << "point: " << point << std::endl;
-        } else {
-            std::cout << "bad point: #" << len(points_list) << std::endl;
         }
     }
 }

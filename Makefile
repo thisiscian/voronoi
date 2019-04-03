@@ -11,9 +11,7 @@ docker-build-dev:
 	docker build --tag=voronoi .
 
 docker-test: docker-build-dev
-	docker run --rm -e DISPLAY=${DISPLAY} voronoi build/run_voronoi.py
+	docker run --rm voronoi build/run_voronoi.py | feh 2>/dev/null
 
 docker-edit: docker-build-dev
-	docker create -it --name voronoi/dev voronoi/dev-base
-	docker start voronoi/dev
-	docker exec -it voronoi/dev bash
+	docker run --rm -i --volume="/home/${USER}:/root/" voronoi/dev-base bash
