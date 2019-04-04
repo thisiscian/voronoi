@@ -40,11 +40,27 @@ for x in range(1000):
     
 points = [v.Point(*d) for d in random_points]
 solved = v.solve(points)
-print(solved)
 
 pxdata = [d[0] for d in random_points]
 pydata = [d[1] for d in random_points]
-
 plt.plot(pxdata, pydata, 'rh', xdata, ydata, 'k', markersize=2)
+
+for focus in solved.unsolved:
+    print(focus)
+    parabola = v.Parabola(focus)
+    quadratic = parabola.to_quadratic(-1)
+
+    pxdata = [x / 100.0 for x in range(-100, 100)]
+    pydata = [quadratic.get_y(x) for x in pxdata]
+
+    for i in reversed(range(len(pxdata))):
+        if pydata[i] > 1.0 or pydata[i] < -1.0:
+            pydata.pop(i)
+            pxdata.pop(i)
+
+    plt.plot(pxdata, pydata, 'g--')
+plt.plot([-1, 1], [-1, -1])
+
 plt.axis('off')
 plt.show()
+

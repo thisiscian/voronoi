@@ -44,18 +44,19 @@
             friend std::ostream& operator<<(std::ostream& os, const Quadratic& q);
     };
 
-
     /* A parabola is, given a focus point and a directrix line, a curve such 
        that for any point P on the parabola, the distance to the focus is equal
        to the tangential distance from P to the directrix
      */
     class Parabola {
         public:
-            Parabola(Point focus);
-            Point focus;
-            Parabola(double x, double y);
+            Parabola(const Point& focus);
+            Parabola(const Parabola& p);
+            const Point& focus;
             Quadratic to_quadratic(double directrix) const;
             std::vector<Point> get_intersections(const Parabola& p, double directrix) const;
+            Parabola& operator=(Parabola&& p);
+            bool operator==(const Parabola& p) const;
     };
 
 #endif

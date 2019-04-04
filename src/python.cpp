@@ -3,6 +3,7 @@
 #include <iostream>
 #include <list>
 #include "parabola.h"
+#include "voronoi.h"
 
 using namespace boost::python;
 
@@ -10,6 +11,13 @@ object pypoint = (class_<Point>("Point", init<double, double>())
     .def_readwrite("x", &Point::x)
     .def_readwrite("y", &Point::y)
     .def("__str__", &Point::as_string)
+);
+
+object pyedge = (class_<Edge>("Edge", init<Point, Point>())
+    .def_readwrite("start", &Edge::start)
+    .def_readwrite("direction", &Edge::direction)
+	//.def_readwrite("stop", &Edge::y)
+    .def("__str__", &Edge::as_string)
 );
 
 object pyline = (class_<Line>("Line", init<double, double>())
@@ -29,6 +37,17 @@ typedef std::vector<Point> PointVector;
 object pypointvector = (class_<PointVector>("PointVector")
   .def(vector_indexing_suite<PointVector>())
 );
+
+typedef std::vector<Edge> EdgeVector;
+object pyedgevector = (class_<EdgeVector>("EdgeVector")
+  .def(vector_indexing_suite<EdgeVector>())
+);
+
+object pyfortuneoutput = (class_<FortuneOutput>("FortuneOutput")
+  .def_readonly("unsolved", &FortuneOutput::unsolved)
+  .def_readonly("edges", &FortuneOutput::edges)
+);
+
 
 template<class T>
 list toPythonList(std::vector<T> vector) {
@@ -50,24 +69,26 @@ object pyquadratic = (class_<Quadratic>("Quadratic", init<double, double, double
 );
 
 object pyparabola = (class_<Parabola>("Parabola", init<Point>())
-    .def_readwrite("focus", &Parabola::focus)
+	.add_property("focus", make_function(&Parabola::focus, return_value_policy<reference_existing_object>()))
     .def("to_quadratic", &Parabola::to_quadratic)
     .def("get_intersections", &Parabola::get_intersections)
 );
 
-
-void py_voronoi(const list& points_list) {
+FortuneOutput py_voronoi(const list& points_list) {
     std::list<object> l = std::list<object>();
     stl_input_iterator<object> begin(points_list), end;
     l.assign(begin, end);
 
+	std::vector<Point> points;
     for(const object& o : l) {
         extract<Point> x(o);
         if(x.check()) {
-            Point point = x;
-            std::cout << "point: " << point << std::endl;
+			points.push_back(x);
         }
     }
+
+	FortuneOutput fortune_output = fortune_solve(points);
+	return fortune_output;
 }
 
 BOOST_PYTHON_MODULE(pyvoronoi) {
@@ -77,4 +98,5 @@ BOOST_PYTHON_MODULE(pyvoronoi) {
     def("Line", pyline);
     def("Quadratic", pyquadratic);
     def("Parabola", pyparabola);
+    def("Edge", pyedge);
 }

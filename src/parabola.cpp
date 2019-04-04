@@ -109,18 +109,13 @@ std::ostream& operator<<(std::ostream& os, const Quadratic& q) {
     return os;
 }
 
-Parabola::Parabola(Point new_focus) {
-    focus = new_focus;
-}
-
-Parabola::Parabola(double X, double Y) {
-    focus = Point(X, Y);
-}
+Parabola::Parabola(const Parabola& p) : focus(p.focus) {}
+Parabola::Parabola(const Point& new_focus) : focus(new_focus) {}
 
 Quadratic Parabola::to_quadratic(double directrix) const {
     double V1 = focus.x;
-    double V2 = (focus.y - directrix) / 2.0;
-    double f = focus.y - directrix;
+    double V2 = (focus.y + directrix) / 2.0;
+    double f = (focus.y - directrix) / 2.0;
 
     return Quadratic(
         V1 * V1 / (4.0 * f) + V2,
@@ -141,3 +136,13 @@ std::vector<Point> Parabola::get_intersections(const Parabola& p, double directr
 
     return output;
 };
+
+Parabola& Parabola::operator=(Parabola&& p) {
+	return p;
+}
+
+bool Parabola::operator==(const Parabola& p) const {
+	return p.focus == focus;
+}
+
+
