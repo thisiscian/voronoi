@@ -1,7 +1,10 @@
 #include "arc.h"
+#include <iostream>
 
 Arc::Arc(Parabola &p): Arc(p, NULL, NULL) {}
-Arc::Arc(Parabola &p, Arc* l, Arc* r): parabola(p), left(l), right(r) {}
+Arc::Arc(Parabola &p, Arc* l, Arc* r): parabola(p), left(l), right(r) {
+	update(p.focus.get_y());
+}
 
 std::string Arc::as_string() const {
     std::stringstream ss;
@@ -31,6 +34,10 @@ void Arc::update(double directrix) {
         left->right = this;
         std::vector<Point> left_intersections = parabola.get_intersections(left->parabola, directrix);
         if(left_intersections.size() > 0) {
+			std::cerr << "lefters(" << parabola.focus << ") " << std::endl;
+			for(const Point& x: left_intersections) {
+				std::cerr << " --> " << x << std::endl;
+			}
             left_limit = left->right_limit = left_intersections.back().get_x();
         }
     }
@@ -39,6 +46,10 @@ void Arc::update(double directrix) {
         right->left = this;
         std::vector<Point> right_intersections = parabola.get_intersections(right->parabola, directrix);
         if(right_intersections.size() > 0) {
+			std::cerr << "righters(" << parabola.focus << ") " << std::endl;
+			for(const Point& x: right_intersections) {
+				std::cerr << " --> " << x << std::endl;
+			}
             right_limit = right->left_limit = right_intersections.front().get_x();
         }
     }

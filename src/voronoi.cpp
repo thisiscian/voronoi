@@ -52,11 +52,7 @@ FortuneOutput fortune_solve(std::vector<Point> points) {
         queue.push(Event(p));
     }
 
-    Parabola p = Parabola(boost::get<Point>(queue.top()));
-    Arc* base = new Arc(p);
-    std::cout << (*base) << std::endl;
-
-    queue.pop();
+    Arc* base = NULL;
 
     FortuneOutput fortuneOutput;
     while(!queue.empty()) {
@@ -65,41 +61,65 @@ FortuneOutput fortune_solve(std::vector<Point> points) {
 
         if( e.which() == 0) {
         } else {
-            Point p = boost::get<Point>(e);
+            Point pnt = boost::get<Point>(e);
+			Point *p = new Point(pnt.get_x(), pnt.get_y());
+
+			if(base == NULL) {
+				Parabola *par = new Parabola(*p);
+				base = new Arc(*par);
+				continue;
+			}
+
+			Arc *left = base;
+			while(left->left != NULL) {
+				left = left->left;
+			}
+
+			while(left != NULL) {
+				left->update(pnt.get_y());
+				left = left->right;
+			}
+
             Arc* parent = base;
-            while(!parent->underneath(p)) {
-                if(parent->on_left(p)) {
-                    parent = parent->left;
+            while(!(parent->underneath(*p))) {
+                if(parent->on_left(*p)) {
+					if(!(parent->left)) {
+						parent = parent->left;
+					} else {
+						break;
+					}
                 } else {
-                    parent = parent->right;
+					if(!(parent->right)) {
+						parent = parent->right;
+					} else {
+						break;
+					}
                 }
             }
 
-            Arc a(parent->parabola, parent->left, NULL);
-            Arc c(parent->parabola, NULL, parent->right);
-            Parabola P(p);
-            Arc b(P, &a, &c);
+            Arc *a, *b, *c;
+		   	a = new Arc(parent->parabola, parent->left, NULL);
+            c = new Arc(parent->parabola, NULL, parent->right);
+            Parabola *P = new Parabola(*p);
+            b = new Arc(*P, a, c);
 
-            a.update(p.get_y());
-            c.update(p.get_y());
-
-            if(parent==base) {
-                base = &b;
+            if(parent == base) {
+                base = b;
             }
         }
     }
 
-    fortuneOutput.unsolved.push_back(*base);
-    Arc *left = base->left;
-    while(left != NULL) {
-        fortuneOutput.unsolved.push_back(*left);
+	//fortuneOutput.unsolved.push_back(*base);
+    Arc *left = base;
+
+    while(left->left != NULL) {
         left = left->left;
     }
 
-    Arc *right = base->right;
-    while(right != NULL) {
-        fortuneOutput.unsolved.push_back(*right);
-        right = right->right;
+    while(left != NULL) {
+		std::cerr << "  unsolved: "  << left->parabola.focus << std::endl;
+        fortuneOutput.unsolved.push_back(*left);
+        left = left->right;
     }
 
     return fortuneOutput;

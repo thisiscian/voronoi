@@ -52,3 +52,8 @@ size_t Equation::get_coefficient_count() const {
 std::vector<double> Equation::get_x(double y) const {
     return std::vector<double>();
 }
+
+std::ostream& operator<<(std::ostream& os, const Equation& p) {
+	os << p.as_string();
+	return os;
+}

@@ -1,6 +1,7 @@
 #ifndef __voronoi_point__
 #define __voronoi_point__
 
+	#include <cmath>
     #include "base.h"
 
     class Point {
@@ -17,6 +18,9 @@
 
             double get_y() const;
             void set_y(double value);
+
+			double distance_to(const Point& p) const;
+			double length() const;
 
         private:
             double x, y;

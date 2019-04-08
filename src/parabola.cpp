@@ -22,9 +22,26 @@ std::vector<Point> Parabola::get_intersections(const Parabola& p, double directr
     const Quadratic q2 = p.to_quadratic(directrix);
 
     std::vector<Point> output;
+	if(directrix == p.focus.get_y()) {
+		double x = p.focus.get_x();
+		double y = q1.get_y(x);
+
+		output.push_back(Point(x, y));
+		output.push_back(Point(x, y));
+		return output;
+	}
+
+	if(directrix == focus.get_y()) {
+		double x = focus.get_x();
+		double y = q2.get_y(x);
+
+		output.push_back(Point(x, y));
+		output.push_back(Point(x, y));
+		return output;
+	}
 
     for(const double& x: (q1 - q2).get_x(0.0)) {
-        output.push_back(Point(x, q1.get_y(x)));
+        output.push_back(Point(x, 0.0));
     }
 
     return output;

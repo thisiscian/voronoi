@@ -37,4 +37,10 @@ void Point::set_y(double value) {
     y = value;
 }
 
+double Point::distance_to(const Point& p) const {
+	return sqrt(std::pow(x - p.get_x(), 2) + std::pow(y - p.get_y(), 2));
+}
 
+double Point::length() const {
+	return sqrt( std::pow(x, 2) + std::pow(y, 2));
+}

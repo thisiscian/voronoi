@@ -23,6 +23,7 @@
             double get_y(double x) const;
             virtual std::vector<double> get_x(double y) const;
 
+            friend std::ostream& operator<<(std::ostream&, const Equation& p);
         protected:
             std::vector<double> coefficients;
     };
