@@ -31,7 +31,7 @@ std::vector<double> Quadratic::get_x(double y) const{
     return output;
 }
 
-Quadratic Quadratic::operator-(Equation e) const {
+Quadratic Quadratic::operator-(Quadratic e) const {
     std::vector<double> output = std::vector<double>();
     size_t both = std::min(get_coefficient_count(), e.get_coefficient_count());
 

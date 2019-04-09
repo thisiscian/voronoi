@@ -14,7 +14,7 @@
             Parabola(const Parabola& p);
             const Point& focus;
             Quadratic to_quadratic(double directrix) const;
-            std::vector<Point> get_intersections(const Parabola& p, double directrix) const;
+            std::vector<double> get_intersections(const Parabola& p, double directrix) const;
             Parabola& operator=(Parabola&& p);
             bool operator==(const Parabola& p) const;
     };

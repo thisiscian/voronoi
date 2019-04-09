@@ -32,7 +32,7 @@ struct EventPointVisitor : public boost::static_visitor<Point> {
 };
 
 FortuneOutput fortune_solve(std::vector<Point> points) {
-	auto point_compare = [](Event& left, Event& right){
+    auto point_compare = [](Event& left, Event& right){
         EventPointVisitor epv;
         Point left_p = left.apply_visitor(epv);
         Point right_p = right.apply_visitor(epv);
@@ -62,43 +62,45 @@ FortuneOutput fortune_solve(std::vector<Point> points) {
         if( e.which() == 0) {
         } else {
             Point pnt = boost::get<Point>(e);
-			Point *p = new Point(pnt.get_x(), pnt.get_y());
+            Point *p = new Point(pnt.get_x(), pnt.get_y());
 
-			if(base == NULL) {
-				Parabola *par = new Parabola(*p);
-				base = new Arc(*par);
-				continue;
-			}
+            if(base == NULL) {
+                Parabola *par = new Parabola(*p);
+                base = new Arc(*par);
+                continue;
+            }
 
-			Arc *left = base;
-			while(left->left != NULL) {
-				left = left->left;
-			}
+            Arc *left = base;
+            while(left->left != NULL) {
+                left = left->left;
+            }
 
-			while(left != NULL) {
-				left->update(pnt.get_y());
-				left = left->right;
-			}
+            std::cerr << "UPDATE[NEW POINT]: " << pnt.get_y() << std::endl;
+            while(left != NULL) {
+                left->update(pnt.get_y());
+                left = left->right;
+            }
+            std::cerr << "DONE" << std::endl;
 
             Arc* parent = base;
             while(!(parent->underneath(*p))) {
                 if(parent->on_left(*p)) {
-					if(!(parent->left)) {
-						parent = parent->left;
-					} else {
-						break;
-					}
+                    if(!(parent->left)) {
+                        parent = parent->left;
+                    } else {
+                        break;
+                    }
                 } else {
-					if(!(parent->right)) {
-						parent = parent->right;
-					} else {
-						break;
-					}
+                    if(!(parent->right)) {
+                        parent = parent->right;
+                    } else {
+                        break;
+                    }
                 }
             }
 
             Arc *a, *b, *c;
-		   	a = new Arc(parent->parabola, parent->left, NULL);
+            a = new Arc(parent->parabola, parent->left, NULL);
             c = new Arc(parent->parabola, NULL, parent->right);
             Parabola *P = new Parabola(*p);
             b = new Arc(*P, a, c);
@@ -117,7 +119,7 @@ FortuneOutput fortune_solve(std::vector<Point> points) {
     }
 
     while(left != NULL) {
-		std::cerr << "  unsolved: "  << left->parabola.focus << std::endl;
+        //std::cerr << "  unsolved: "  << left->parabola.focus << std::endl;
         fortuneOutput.unsolved.push_back(*left);
         left = left->right;
     }
