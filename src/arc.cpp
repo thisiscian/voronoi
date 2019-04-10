@@ -35,19 +35,36 @@ std::ostream& operator<<(std::ostream& os, const Arc& a) {
 
 void Arc::update(double directrix) {
     if(left!=NULL) {
+		double X;
         left->right = this;
         std::vector<double> i, intersections = parabola.get_intersections(left->parabola, directrix);
-        double left_focus = parabola.focus.get_x();
-        std::copy_if(intersections.begin(), intersections.end(), std::back_inserter(i), [left_focus](double x){ return x >= left_focus; });
-        left_limit = left->right_limit = *std::min_element(i.begin(), i.end());
+
+		if(parabola.focus.get_y() > left->parabola.focus.get_y()) {
+			X = left->parabola.focus.get_x();
+			std::copy_if(intersections.begin(), intersections.end(), std::back_inserter(i), [X](double x){ return x >= X; });
+			left_limit = left->right_limit = *std::min_element(i.begin(), i.end());
+		} else {
+			X = parabola.focus.get_x();
+			std::copy_if(intersections.begin(), intersections.end(), std::back_inserter(i), [X](double x){ return x <= X; });
+			left_limit = left->right_limit = *std::max_element(i.begin(), i.end());
+		}
     }
 
     if(right!=NULL) {
+		double X;
         right->left = this;
-        double right_focus = parabola.focus.get_x();
         std::vector<double> i, intersections = parabola.get_intersections(right->parabola, directrix);
-        std::copy_if(intersections.begin(), intersections.end(), std::back_inserter(i), [right_focus](double x){ return x <= right_focus; });
-        right_limit = right->left_limit = *std::max_element(i.begin(), i.end());
+
+		if(parabola.focus.get_y() > right->parabola.focus.get_y()) {
+			std::cerr << "RIGHT && above" << std::endl;
+			X = right->parabola.focus.get_x();
+			std::copy_if(intersections.begin(), intersections.end(), std::back_inserter(i), [X](double x){ return x <= X; });
+			right_limit = right->left_limit = *std::min_element(i.begin(), i.end());
+		} else {
+			X = parabola.focus.get_x();
+			std::copy_if(intersections.begin(), intersections.end(), std::back_inserter(i), [X](double x){ return x >= X; });
+			right_limit = right->left_limit = *std::max_element(i.begin(), i.end());
+		}
     }
     std::cerr << "    update(" << directrix << "): " << *this << std::endl;
 }

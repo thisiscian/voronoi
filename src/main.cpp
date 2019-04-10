@@ -66,6 +66,10 @@ double* heart(double t) {
 }
 
 int main(int argc, char* argv[]) {
+	int count = 3;
+	if(argc > 1) {
+		count = atoi(argv[1]);
+	}
     //srand(time(NULL));
     srand(10);
 
@@ -82,7 +86,7 @@ int main(int argc, char* argv[]) {
     }
     pt.add_child("border", border);
 
-    std::vector<Point> points = generate_points_in_parameterised_function(2, heart);
+    std::vector<Point> points = generate_points_in_parameterised_function(count, heart);
     ptree voronoi_points;
     double directrix = DBL_MAX;
     for(const Point& p: points) {

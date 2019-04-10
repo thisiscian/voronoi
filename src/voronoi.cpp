@@ -111,7 +111,6 @@ FortuneOutput fortune_solve(std::vector<Point> points) {
         }
     }
 
-	//fortuneOutput.unsolved.push_back(*base);
     Arc *left = base;
 
     while(left->left != NULL) {
