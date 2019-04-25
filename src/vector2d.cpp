@@ -1,7 +1,5 @@
 #include "vector2d.h"
 
-#include <iostream>
-
 Vector2D::Vector2D(): x(0), y(0) {};
 Vector2D::Vector2D(double X, double Y): x(X), y(Y) {};
 Vector2D::Vector2D(const Vector2D& p): x(p.x), y(p.y) {};

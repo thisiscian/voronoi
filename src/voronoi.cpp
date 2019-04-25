@@ -25,12 +25,9 @@ void Voronoi::solve() {
             std::cout << "Beachline @ " << directrix << std::endl;
             for(const auto& be: beachline.contents) {
                 try {
-                    std::cout << "  " << to_string(*std::get<Arc*>(be)) << std::endl;
-                    std::cout << "  " << to_string(*std::get<Arc*>(be), directrix) << std::endl;
+                    Arc* arc = std::get<Arc*>(be);
+                    std::cout << "  " << *arc << std::endl;
                 } catch(std::bad_variant_access&) {
-                    try {
-                        std::cout << "  " << *std::get<Edge*>(be) << std::endl;
-                    } catch(std::bad_variant_access&) {}
                 }
             }
             std::cout << std::endl;
@@ -52,12 +49,9 @@ void Voronoi::solve() {
     std::cout << "Beachline @ " << directrix << std::endl;
     for(const auto& be: beachline.contents) {
         try {
-            std::cout << "  " << to_string(*std::get<Arc*>(be), 1.1) << std::endl;
-        } catch(std::bad_variant_access&) {
-            try {
-                std::cout << "  " << *std::get<Edge*>(be) << std::endl;
-            } catch(std::bad_variant_access&) {}
-        }
+            Arc* arc = std::get<Arc*>(be);
+            std::cout << "  " << *arc << std::endl;
+        } catch(std::bad_variant_access&) { }
     }
     return;
 };

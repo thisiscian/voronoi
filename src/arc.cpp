@@ -59,15 +59,13 @@ void Arc::update_intersection(Arc* a, double directrix) {
         right = a->left = x_min;
         return;
     } else {
-        std::cout << ">  " << to_string(*this, directrix) << std::endl;
-        std::cout << ">  " << to_string(*a, directrix) << std::endl;
-        std::cout << ">  [" << x_min << ", " << x_max << "] (" << left << ":" << right << ")  " << std::endl;
+        std::cout << "resorted to dubious x_max usage:" << x_max << std::endl;
+        std::cout << *this << " X " << *a << ", [" << x_min << ", " << x_max << "] (" << left << ":" << right << ")  " << (x_max - right) << std::endl;
         std::cout << std::endl;
         right = a->left = x_max;
         return;
     }
 
-    std::cout << *this << ", " << *a << ", [" << x_min << ", " << x_max << "] (" << left << ":" << right << ")  " << (x_max - right) << std::endl;
     throw std::domain_error( "failed to find valid intersection");
 }
 
