@@ -24,6 +24,10 @@ void Arc::update_intersection(Arc* a, double directrix) {
     double V1 = focus.x; 
     double V2 = (focus.y + directrix) / 2.0;
     double f = (focus.y - directrix) / 2.0;
+    
+    if(f == 0) {
+        return;
+    }
 
     double A = V1 * V1 / (4.0 * f ) + V2;
     double B = -V1 / (2.0 * f);
@@ -32,6 +36,10 @@ void Arc::update_intersection(Arc* a, double directrix) {
     double aV1 = a->focus.x; 
     double aV2 = (a->focus.y + directrix) / 2.0;
     double af = (a->focus.y - directrix) / 2.0;
+
+    if(af == 0) {
+        return;
+    }
 
     double aA = aV1 * aV1 / (4.0 * af ) + aV2;
     double aB = -aV1 / (2.0 * af);
@@ -43,7 +51,6 @@ void Arc::update_intersection(Arc* a, double directrix) {
 
     double det = _B * _B - 4 * _A * _C;
     if(det < 0) {
-        //std::cout << *this << " vs " << a << std::endl;
         throw std::domain_error("Arcs do not intersect");
     }
 
@@ -54,17 +61,23 @@ void Arc::update_intersection(Arc* a, double directrix) {
 
     double x_min = std::min(limit[0], limit[1]);
     double x_max = std::max(limit[0], limit[1]);
+    std::cout << "    \x1b[1m" << x_min << ", " << x_max << "\x1b[0m | " << left << " " << right<< std::endl;
 
-    if(left <= x_min && x_min <= right) {
+    if(left < x_min && x_min <= right) {
         right = a->left = x_min;
         return;
-    } else {
-        std::cout << "resorted to dubious x_max usage:" << x_max << std::endl;
-        std::cout << *this << " X " << *a << ", [" << x_min << ", " << x_max << "] (" << left << ":" << right << ")  " << (x_max - right) << std::endl;
-        std::cout << std::endl;
+    } 
+
+    if(x_max >= right) {
         right = a->left = x_max;
         return;
     }
+
+    std::cout << "resorted to dubious x_max usage:" << x_max << std::endl;
+    std::cout << *this << " X " << *a << ", [" << x_min << ", " << x_max << "] (" << left << ":" << right << ")  " << (x_max - right) << std::endl;
+    std::cout << std::endl;
+    right = a->left = x_max;
+    return;
 
     throw std::domain_error( "failed to find valid intersection");
 }

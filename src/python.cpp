@@ -10,8 +10,6 @@
 using namespace boost::python;
 
 dict py_solve(size_t count) {
-    srand(10);
-
     dict output;
     list unsolved, edges, output_points;
     output["points"] = output_points;
@@ -66,6 +64,7 @@ dict py_solve(size_t count) {
 
 BOOST_PYTHON_MODULE(pyvoronoi) {
     using namespace boost::python;
+    srand(10);
 
     def("solve", py_solve);
 }
