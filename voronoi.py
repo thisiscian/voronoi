@@ -14,8 +14,9 @@ for x_data, y_data in solution['edges']:
 for x_data, y_data in solution['unsolved']:
     plt.plot(x_data, y_data, '--')
 
-plt.scatter(*solution['points'])
+plt.scatter(*solution['points'], marker=".")
 
-#plt.axis('off')
+plt.axis("off")
+plt.axis("equal")
 plt.axis([0,1,0,1])
 plt.show()
