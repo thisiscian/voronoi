@@ -61,7 +61,7 @@ void Arc::update_intersection(Arc* a, double directrix) {
 
     double x_min = std::min(limit[0], limit[1]);
     double x_max = std::max(limit[0], limit[1]);
-    std::cout << "    \x1b[1m" << x_min << ", " << x_max << "\x1b[0m | " << left << " " << right<< std::endl;
+    //std::cout << "    \x1b[1m" << x_min << ", " << x_max << "\x1b[0m | " << left << " " << right<< std::endl;
 
     if(left < x_min && x_min <= right) {
         right = a->left = x_min;

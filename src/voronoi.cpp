@@ -14,6 +14,7 @@ Voronoi::Voronoi(const std::vector<Vector2D>& points) {
 };
 
 void Voronoi::solve() {
+    std::cout << "https://www.desmos.com/calculator/3r2juaz9qr" << std::endl;
     while(events.size() > 0) {
         auto it = events.begin();
         if(it->second.size() == 0) {
@@ -32,6 +33,9 @@ void Voronoi::solve() {
                 Arc* arc = std::get<Arc*>(be);
                 std::cout << "  " << arc << "|" << *arc << std::endl;
             } catch(std::bad_variant_access&) {
+                Edge* edge = std::get<Edge*>(be);
+                std::cout << "   " << edge << "|" << *edge << std::endl;
+
             }
         }
         std::cout << std::endl;
@@ -88,12 +92,19 @@ void Voronoi::remove_arc(Arc* a) {
     try {
         s = get_circumcenter(l->focus, a->focus, r->focus);
     } catch(std::exception&) {
-        return;
+        std::cout << l->focus << std::endl;
+        std::cout << a->focus << std::endl;
+        std::cout << r->focus << std::endl;
+        throw;
     }
     Edge* x = new Edge(s, (r->focus - l->focus).get_normal());
 
     xl->stop = s;
     xr->stop = s;
+
+    std::cout << "completing edge: " << xl << "|" << xl->start << ", " << s << std::endl;;
+    std::cout << "completing edge: " << xr << "|" << xr->start << ", " << s << std::endl;;
+
     complete_edges.push_back(xl);
     complete_edges.push_back(xr);
 
@@ -123,12 +134,9 @@ void Voronoi::check_circle_event(Arc* a) {
         }
         std::cout << "new circle event: " << (s.y + radius) << " " << a << std::endl;
         if(events.find(s.y + radius) != events.end()) {
-            std::cout << "  add" << std::endl;
-            events[s.y + radius].push_back(a);
-            std::cout << "    " << events[s.y + radius].size() << std::endl;
+            events[s.y + radius].insert(events[s.y + radius].begin(), a);
         } else {
             events[s.y + radius] = std::vector<Event> { a };
-            std::cout << "  create" << std::endl;
         }
         
     } catch(std::exception e) {
@@ -141,14 +149,10 @@ void Voronoi::remove_event(Arc* a) {
         std::vector<Event>& evs = p.second;
          
         std::vector<Event>::iterator it = std::find(evs.begin(), evs.end(), a);
-        if(it != evs.end()) {
+        while(it != evs.end()) {
+            std::cout << "removed event @ " << p.first << " " << a << std::endl;
             evs.erase(it);
-            if(p.second.size() == 0) {
-                events.erase(p.first);
-                return;
-            }
-
+            it = std::find(evs.begin(), evs.end(), a);
         }
-
     }
 }
