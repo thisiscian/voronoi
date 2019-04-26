@@ -23,6 +23,7 @@
             Vector2D focus;
             double left, right;
 
+            double* get_coefficients(double) const;
             Vector2D at(double, double) const;
             void update_intersection(Arc*, double);
 
@@ -30,7 +31,6 @@
 
             friend std::ostream& operator<<(std::ostream&, const Arc&);
             friend std::string to_string(const Arc&);
-            friend std::string to_string(const Arc&, double directrix);
             friend bool operator==(const BeachlineElement& be, Arc* arc);
             friend bool operator==(const Event&, Arc*);
     };

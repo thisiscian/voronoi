@@ -1,6 +1,8 @@
 #ifndef __voronoi_voronoi_h__
 #define __voronoi_voronoi_h__
     #include <algorithm>
+    #include <exception>
+    #include <limits>
     #include <map>
     #include <variant>
     #include <vector>
@@ -21,7 +23,7 @@
             std::map<double, std::vector<Event> > events;
             std::vector<Edge*> complete_edges;
 
-            void solve();
+            void solve(double x = DBL_MAX);
             void add_arc(Vector2D*);
             void remove_arc(Arc*);
             void remove_event(Arc*);

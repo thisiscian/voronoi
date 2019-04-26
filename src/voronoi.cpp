@@ -13,13 +13,31 @@ Voronoi::Voronoi(const std::vector<Vector2D>& points) {
     }
 };
 
-void Voronoi::solve() {
-    std::cout << "https://www.desmos.com/calculator/3r2juaz9qr" << std::endl;
+void Voronoi::solve(double limit) {
+    //std::cout << "https://www.desmos.com/calculator/3r2juaz9qr" << std::endl;
     while(events.size() > 0) {
         auto it = events.begin();
         if(it->second.size() == 0) {
             events.erase(it->first);
             continue;
+        }
+        if(it->first >= limit) {
+            directrix = limit;
+            beachline.update(directrix);
+            std::cout << "Beachline @ " << directrix << std::endl;
+            for(const auto& be: beachline.contents) {
+                try {
+                    Arc* arc = std::get<Arc*>(be);
+                    std::cout << "  " << arc << "|" << *arc << std::endl;
+                } catch(std::bad_variant_access&) {
+                    Edge* edge = std::get<Edge*>(be);
+                    std::cout << "   " << edge << "|" << *edge << std::endl;
+
+                }
+            }
+            std::cout << std::endl;
+
+            return;
         }
         directrix = it->first;
         beachline.update(directrix);
@@ -50,7 +68,12 @@ void Voronoi::solve() {
         }
     }
 
-    directrix += 0.1;
+    if(limit == DBL_MAX) {
+        directrix += 0.1;
+    } else {
+        directrix = limit;
+    }
+
     beachline.update(directrix);
     std::cout << "Beachline @ " << directrix << std::endl;
     for(const auto& be: beachline.contents) {
@@ -81,6 +104,8 @@ void Voronoi::remove_arc(Arc* a) {
     std::cout << "removing arc " << a << std::endl;
     Arc* l = beachline.get_arc_on_left(a);
     Arc* r = beachline.get_arc_on_right(a);
+    std::cout << "  " << l << std::endl;
+    std::cout << "  " << r << std::endl;
 
     Edge* xl = beachline.get_edge_on_left(a);
     Edge* xr = beachline.get_edge_on_right(a);
@@ -109,6 +134,7 @@ void Voronoi::remove_arc(Arc* a) {
     complete_edges.push_back(xr);
 
     beachline.replace(xl, xr, x);
+    beachline.update(directrix);
 
     check_circle_event(l);
     check_circle_event(r);
@@ -129,6 +155,11 @@ void Voronoi::check_circle_event(Arc* a) {
         Vector2D s = xl->get_intersection(*xr);
 
         double radius = s.get_distance(a->focus);
+        std::cout << "    " << s << std::endl;
+        std::cout << "    " << l << ", " << xl << ", " << a << ", " << xr << ", " << r << std::endl;
+        std::cout << "    " << *l << ", " << *a << ", " << *r << std::endl;
+        std::cout << "    " << l->focus.get_distance(s) << ", " << r->focus.get_distance(s) << std::endl;
+        std::cout << "    " << s. y << " + " << radius << " = " << (s.y+radius) << std::endl;
         if(s.y + radius < directrix) {
             return;
         }
@@ -138,6 +169,19 @@ void Voronoi::check_circle_event(Arc* a) {
         } else {
             events[s.y + radius] = std::vector<Event> { a };
         }
+        std::sort(events[s.y + radius].begin(), events[s.y + radius].end(), [](const Event& a, const Event&b) {
+            try {
+                Arc* A = std::get<Arc*>(a), *B;
+                try {
+                    B = std::get<Arc*>(b);
+                } catch(std::bad_variant_access&) {
+                    return false;
+                }
+                return (A->right - A->left) > (B->right - B->left);
+            } catch(std::bad_variant_access&) {
+                return true;
+            }
+        });
         
     } catch(std::exception e) {
         return;

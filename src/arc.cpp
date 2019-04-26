@@ -4,50 +4,47 @@
 
 Arc::Arc(const Vector2D& v) {
     focus = Vector2D(v);
-    left = -std::numeric_limits<double>::max();
-    right = std::numeric_limits<double>::max();
+    left = -std::numeric_limits<double>::infinity();
+    right = std::numeric_limits<double>::infinity();
 }
 
-Vector2D Arc::at(double x, double directrix) const {
+double* Arc::get_coefficients(double directrix) const {
     double V1 = focus.x; 
     double V2 = (focus.y + directrix) / 2.0;
     double f = (focus.y - directrix) / 2.0;
+    if(f == 0) {
+        throw std::domain_error("no value");
+    }
 
-    double A = V1 * V1 / (4.0 * f ) + V2;
-    double B = -V1 / (2.0 * f);
-    double C = 1.0 / (4.0 * f);
+    double* output = new double[3] {
+        V1 * V1 / (4.0 * f ) + V2,
+        -V1 / (2.0 * f),
+        1.0 / (4.0 * f)
+    };
+    return output;
+}
+
+Vector2D Arc::at(double x, double directrix) const {
+    double* coefficients = get_coefficients(directrix);
+
+    double A = coefficients[0];
+    double B = coefficients[1];
+    double C = coefficients[2];
 
     return Vector2D(x, A + B * x +  C * x * x);
 }
 
 void Arc::update_intersection(Arc* a, double directrix) {
-    double V1 = focus.x; 
-    double V2 = (focus.y + directrix) / 2.0;
-    double f = (focus.y - directrix) / 2.0;
-    
-    if(f == 0) {
+    double* coeffs, *a_coeffs;
+    try {
+        coeffs = get_coefficients(directrix);
+        a_coeffs = a->get_coefficients(directrix);
+    } catch(std::domain_error&) {
         return;
     }
-
-    double A = V1 * V1 / (4.0 * f ) + V2;
-    double B = -V1 / (2.0 * f);
-    double C = 1.0 / (4.0 * f);
-
-    double aV1 = a->focus.x; 
-    double aV2 = (a->focus.y + directrix) / 2.0;
-    double af = (a->focus.y - directrix) / 2.0;
-
-    if(af == 0) {
-        return;
-    }
-
-    double aA = aV1 * aV1 / (4.0 * af ) + aV2;
-    double aB = -aV1 / (2.0 * af);
-    double aC = 1.0 / (4.0 * af);
-
-    double _A = A - aA;
-    double _B = B - aB;
-    double _C = C - aC;
+    double _A = coeffs[0] - a_coeffs[0];
+    double _B = coeffs[1] - a_coeffs[1];
+    double _C = coeffs[2] - a_coeffs[2];
 
     double det = _B * _B - 4 * _A * _C;
     if(det < 0) {
@@ -61,14 +58,13 @@ void Arc::update_intersection(Arc* a, double directrix) {
 
     double x_min = std::min(limit[0], limit[1]);
     double x_max = std::max(limit[0], limit[1]);
-    //std::cout << "    \x1b[1m" << x_min << ", " << x_max << "\x1b[0m | " << left << " " << right<< std::endl;
 
     if(left < x_min && x_min <= right) {
         right = a->left = x_min;
         return;
     } 
 
-    if(x_max >= right) {
+    if(x_max >= left) {
         right = a->left = x_max;
         return;
     }
@@ -86,48 +82,19 @@ void Arc::update_intersection(Arc* a, double directrix) {
 std::string to_string(const Arc& a){
     std::stringstream ss;
     ss << "Arc(" << a.focus.x << ", " << a.focus.y << " [";
-    if(a.left == -std::numeric_limits<double>::max()) {
+    if(a.left == -std::numeric_limits<double>::infinity()) {
         ss << "-inf";
     } else {
         ss << a.left;
     }
     ss << ", "; 
 
-    if(a.right == std::numeric_limits<double>::max()) {
+    if(a.right == std::numeric_limits<double>::infinity()) {
         ss << "inf";
     } else {
         ss << a.right;
     }
     ss << "])";
-    return ss.str();
-}
-
-std::string to_string(const Arc& a, double directrix) {
-    std::stringstream ss;
-    double V1 = a.focus.x; 
-    double V2 = (a.focus.y + directrix) / 2.0;
-    double f = (a.focus.y - directrix) / 2.0;
-
-    double A = V1 * V1 / (4.0 * f ) + V2;
-    double B = -V1 / (2.0 * f);
-    double C = 1.0 / (4.0 * f);
-
-    ss << A << "+" << B << "x+" << C << "x^2";
-    if(a.left > -std::numeric_limits<double>::max() && a.right == std::numeric_limits<double>::max()) {
-        ss << " \\left\\{ x > " << a.left << "\\right\\}";
-    } else if(a.left > -std::numeric_limits<double>::max() || a.right < std::numeric_limits<double>::max()) {
-        ss << " \\left\\{";
-        if(a.left > -std::numeric_limits<double>::max()) {
-            ss << a.left << " < ";
-        }
-        ss << " x"; 
-
-        if(a.right < std::numeric_limits<double>::max()) {
-            ss << " < " << a.right;
-        }
-        ss << "\\right\\}";
-    }
-    
     return ss.str();
 }
 
