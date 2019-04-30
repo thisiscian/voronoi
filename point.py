@@ -50,12 +50,20 @@ class Point(object):
             return self.x < other.x or (self.x == other.x and self.y < other.y)
         return super().__lt__(other)
 
+    def __rmul__(self, other):
+        if isinstance(other, float) or isinstance(other, int): 
+            return Point(self.x * other, self.y * other)
+        elif isinstance(other, Point):
+            return self.x * other.x + self.y * other.y
+        return super().__mul__(other)
+
     def __mul__(self, other):
         if isinstance(other, float) or isinstance(other, int): 
             return Point(self.x * other, self.y * other)
         elif isinstance(other, Point):
             return self.x * other.x + self.y * other.y
         return super().__mul__(other)
+
 
     def __str__(self):
         return '({:.2f}, {:.2f})'.format(self.x, self.y)

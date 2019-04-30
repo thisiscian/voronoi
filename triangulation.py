@@ -116,94 +116,57 @@ class Voronoi:
         self.points = points
         self.delaunay = DelaunayTriangulation(self.points)
         self.boundary = boundary
-
-        extra_boundary_points = self.extend_to_boundary()
-        self.expanded_boundary = PointList(*boundary, *extra_boundary_points)
-        self.expanded_boundary.sort(key = lambda P: (P.angle, P.sq_length if P.angle < math.pi else 1.0/P.sq_length))
-        print(self.expanded_boundary)
-        print([(P.angle, P.sq_length if P.angle < math.pi else 1.0/P.sq_length) for P in self.expanded_boundary])
-        new_points = PointList(
-            *points,
-            #*boundary,
-            *self.expanded_boundary,
-        )
-
-        self.expanded = DelaunayTriangulation(new_points)
         self.get_polygons()
 
+    def get_intersection(self, ray_start, ray_direction):
+        for data in self.get_intersection_and_boundary_index(ray_start, ray_direction):
+            if data:
+                return data[0]
+            else:
+                return data
 
-    def extend_to_boundary(self):
-        line_equations = []
+    def get_intersection_and_boundary_index(self, ray_start, ray_direction):
+        # y = m * x + c
         for i in range(len(self.boundary)):
             start = self.boundary[i - 1]
             stop = self.boundary[i]
 
-            line = stop - start
+            v1 = ray_start - start
+            v2 = stop - start
+            v3 = Point(-ray_direction.y, ray_direction.x)
 
-            if line.x != 0:
-                a = line.y / line.x
-                line_eq = [a, start.y - start.x * a]
-            else:
-                line_eq = [start.x]
+            dot = v2 * v3
+            if abs(dot) == 0:
+                continue
 
-            line_equations.append(line_eq)
+            t1 = v2.cross(v1) / dot
+            t2 = (v1 * v3) / dot
+            
+            if t1 >= 0 and (t2 >= 0 and t2 <= 1.0):
+                ixn = t1 * ray_direction + ray_start;
+                yield ixn, i - 1
 
-        extra_points = []
-        for e in self.delaunay.convex_hull_edges:
-            midpoint = (e.start + e.stop) / 2.0
-            circumcenter = e.triangles[0].circumcenter
-            ray = (midpoint, circumcenter - midpoint)
-
-            # y = ax + b : 
-            if ray[1].x != 0:
-                a = ray[1].y / ray[1].x
-                ray_eq = [a, midpoint.y - midpoint.x * a]
-            else:
-                ray_eq = [midpoint.x]
-
-            ys = sorted([e.start.y, e.stop.y])
-            xs = sorted([e.start.x, e.stop.x])
-        
-            point = None
-            for i in range(len(line_equations)):
-                line_eq = line_equations[i]
-
-                if len(ray_eq) == 1 and len(line_eq) == 1 or line_eq[0] == ray_eq[0]:
-                    continue
-
-                elif len(ray_eq) == 1:
-                    x = ray_eq[0]
-                    y = line_eq[0] * x + line_eq[1]
-                elif len(line_eq) == 1:
-                    x = line_eq[0]
-                    y = ray_eq[0] * x + ray_eq[1]
-                else:
-                    x = (ray_eq[1] - line_eq[1]) / (line_eq[0] - ray_eq[0])
-                    y = line_eq[0] * x + line_eq[1]
-
-                P = Point(x,y)
-
-                if len(line_eq) == 1:
-                    if ys[0] <= y and y <= ys[1]:
-                        if point is None or P.distance(midpoint) < point.distance(midpoint):
-                            point = P
-                else:
-                    if xs[0] <= x and x <= xs[1]:
-                        if point is None or P.distance(midpoint) < point.distance(midpoint):
-                            point = P
-
-            if point:
-                extra_points.append(point)
-
-        return extra_points
 
     def get_polygons(self):
         groups = {p: PointList() for p in self.points}
+        edge_points = {}
+        l = len(self.delaunay.convex_hull)
+        s = sum(self.delaunay.convex_hull, Point(0, 0)) / l
         for edge in self.delaunay.edges:
             points = [t.circumcenter for t in edge.triangles]
+            midpoint = (edge.start + edge.stop) / 2.0
+
             for p in edge.points:
                 for P in points:
                     groups[p].append(P)
+                    
+                    if len(edge.triangles) == 1:
+                        dxn = midpoint - P
+                        if s.distance(midpoint) < s.distance(P):
+                            dxn = -1 * dxn
+                        ixn = self.get_intersection(P, dxn)
+                        groups[p].append(ixn)
+
 
         for p, group in groups.items():
             group.sort(key = lambda P: (p - P).angle)
@@ -213,23 +176,17 @@ class Voronoi:
 
     def plot(self):
         plt.scatter([p[0] for p in self.points], [p[1] for p in self.points], c='k', marker='.')
+        plt.plot([p.x for p in self.boundary], [p.y for p in self.boundary], 'k')
+
 
         for point, polygon in self.polygons.items():
             if polygon:
-                plt.plot([p[0] for p in polygon + [polygon[0]]], [p[1] for p in polygon + [polygon[0]]], 'k')
+                plt.plot([p[0] for p in polygon + [polygon[0]]], [p[1] for p in polygon + [polygon[0]]], 'k--')
                 plt.fill([p[0] for p in polygon], [p[1] for p in polygon], zorder=-10)
 
-        #for triangle in self.delaunay.triangles:
-        #    c = triangle.circumcenter
-        #    r = c.distance(triangle.points[0])
-        #    t = [ i * 2 * math.pi / 180 for i in range(180)]
-        #    plt.plot([r * math.cos(T) + c.x for T in t], [r * math.sin(T) + c.y for T in t], '-.' )
+        #plt.plot([p[0] for p in self.boundary], [p[1] for p in self.boundary], 'k')
 
-        #for edge in self.dual.edges:
-        #    plt.plot([edge.start.x, edge.stop.x], [edge.start.y, edge.stop.y], 'b--')
 
-        for edge in self.delaunay.edges:
-            plt.plot([edge.start.x, edge.stop.x], [edge.start.y, edge.stop.y], 'k-.')
             
         plt.axis("square")
         plt.axis([0,1,0,1])
