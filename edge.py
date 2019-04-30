@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 from point import Point, PointList
 
 class Edge(object):
@@ -44,6 +45,44 @@ class Edge(object):
                 return False
 
         return True
+
+    def _plot(self, style='k'):
+        plt.plot([self.start.x, self.stop.x], [self.start.y, self.stop.y], style)
+
+    def plot(self, style='k'):
+        self._plot(style)
+        plt.axis('square')
+        plt.show()
+
+    def intersection(self, edge):
+        x1 = self.start.x
+        x2 = self.stop.x
+        x3 = edge.start.x
+        x4 = edge.stop.x
+
+        y1 = self.start.y
+        y2 = self.stop.y
+        y3 = edge.start.y
+        y4 = edge.stop.y
+
+        d = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4)
+        if d == 0:
+            return None
+
+        t = (x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)
+        u = (y1 - y2) * (x1 - x3) - (x1 - x2) * (y1 - y3)
+        
+        if t / d < 0 or t / d > 1:
+            return None
+
+        if u / d < 0 or u / d > 1:
+            return None
+
+        x = ((x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4)) / d
+        y = ((x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4)) / d
+
+        return Point(x, y)
+
 
 class EdgeList(list):
     def __init__(self, *items):
